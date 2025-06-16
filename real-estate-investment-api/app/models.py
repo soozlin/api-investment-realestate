@@ -34,6 +34,8 @@ class MLSProperty(BaseModel):
     listing_date: datetime
     amenities: List[str] = []
     description: Optional[str] = None
+    rental_history: Optional[Dict[str, Any]] = None
+    property_tax_annual: Optional[float] = None
 
 class BCAssessmentData(BaseModel):
     pid: str  # Property Identifier
@@ -126,8 +128,8 @@ class ConsolidatedProperty(BaseModel):
     last_updated: datetime = Field(default_factory=datetime.now)
 
 class PropertyAnalysisRequest(BaseModel):
-    address: str
-    city: str
+    address: Optional[str] = None
+    city: Optional[str] = None
     postal_code: Optional[str] = None
     mls_number: Optional[str] = None
     purchase_price: Optional[float] = None  # If different from listing price

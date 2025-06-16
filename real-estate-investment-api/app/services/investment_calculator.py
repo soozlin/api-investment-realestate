@@ -75,6 +75,31 @@ class InvestmentCalculator:
     def estimate_rental_income(self, property_data: ConsolidatedProperty) -> RentalIncomeEstimate:
         """Estimate monthly rental income based on property characteristics"""
         
+        if (property_data.mls_data and 
+            property_data.mls_data.rental_history and 
+            property_data.mls_data.rental_history.get("current_monthly_rent")):
+            
+            actual_rent = property_data.mls_data.rental_history["current_monthly_rent"]
+            logger.info(f"Using actual MLS rental data: ${actual_rent}/month")
+            
+            comparable_rents = [
+                actual_rent * 0.95,
+                actual_rent * 1.05,
+                actual_rent * 0.98,
+                actual_rent * 1.02,
+                actual_rent * 1.08
+            ]
+            
+            square_feet = property_data.mls_data.square_feet or 0
+            rent_per_sqft = actual_rent / square_feet if square_feet > 0 else None
+            
+            return RentalIncomeEstimate(
+                estimated_monthly_rent=round(actual_rent, 2),
+                comparable_rents=[round(r, 2) for r in comparable_rents],
+                rent_per_sqft=round(rent_per_sqft, 2) if rent_per_sqft else None,
+                market_analysis_date=datetime.now()
+            )
+        
         base_rent = 1500.0  # Base rent for BC
         
         bedrooms = 0
@@ -168,7 +193,12 @@ class InvestmentCalculator:
         """Calculate all recurring expenses for the property"""
         
         municipality = property_data.city.lower()
-        if property_data.bc_assessment:
+        
+        if (property_data.mls_data and 
+            property_data.mls_data.property_tax_annual):
+            property_tax = property_data.mls_data.property_tax_annual
+            logger.info(f"Using actual MLS property tax data: ${property_tax}/year")
+        elif property_data.bc_assessment:
             from .bc_assessment_service import BCAssessmentService
             bc_service = BCAssessmentService()
             property_tax = bc_service.calculate_property_tax(

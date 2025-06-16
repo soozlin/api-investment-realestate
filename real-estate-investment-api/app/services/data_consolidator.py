@@ -30,9 +30,12 @@ class DataConsolidator:
         errors = []
         warnings = []
         
+        if not request.mls_number and not request.address:
+            raise ValueError("Either MLS number or address must be provided")
+        
         consolidated = ConsolidatedProperty(
-            address=request.address,
-            city=request.city,
+            address=request.address or "",
+            city=request.city or "",
             postal_code=request.postal_code or "",
             data_sources_used=data_sources_used,
             last_updated=datetime.now()
@@ -41,10 +44,16 @@ class DataConsolidator:
         try:
             if request.mls_number:
                 mls_data = await self.mls_service.get_property_by_mls_number(request.mls_number)
-            else:
+                if mls_data:
+                    consolidated.address = mls_data.address
+                    consolidated.city = mls_data.city
+                    consolidated.postal_code = mls_data.postal_code
+            elif request.address and request.city:
                 mls_data = await self.mls_service.search_property_by_address(
                     request.address, request.city
                 )
+            else:
+                mls_data = None
             
             if mls_data:
                 consolidated.mls_data = mls_data
@@ -59,9 +68,12 @@ class DataConsolidator:
             logger.error(error_msg)
         
         try:
-            bc_assessment = await self.bc_assessment_service.get_assessment_by_address(
-                request.address, request.city
-            )
+            if consolidated.address and consolidated.city:
+                bc_assessment = await self.bc_assessment_service.get_assessment_by_address(
+                    consolidated.address, consolidated.city
+                )
+            else:
+                bc_assessment = None
             
             if bc_assessment:
                 consolidated.bc_assessment = bc_assessment
@@ -76,9 +88,12 @@ class DataConsolidator:
             logger.error(error_msg)
         
         try:
-            gis_data = await self.gis_service.get_gis_data_by_address(
-                request.address, request.city
-            )
+            if consolidated.address and consolidated.city:
+                gis_data = await self.gis_service.get_gis_data_by_address(
+                    consolidated.address, consolidated.city
+                )
+            else:
+                gis_data = None
             
             if gis_data:
                 consolidated.gis_data = gis_data
@@ -97,10 +112,12 @@ class DataConsolidator:
                 ltsa_data = await self.ltsa_service.get_title_info_by_pid(
                     consolidated.bc_assessment.pid
                 )
-            else:
+            elif consolidated.address and consolidated.city:
                 ltsa_data = await self.ltsa_service.get_title_info_by_address(
-                    request.address, request.city
+                    consolidated.address, consolidated.city
                 )
+            else:
+                ltsa_data = None
             
             if ltsa_data:
                 consolidated.ltsa_data = ltsa_data
