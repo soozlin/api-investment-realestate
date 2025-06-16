@@ -19,22 +19,6 @@ class BCAssessmentService:
     async def get_assessment_by_address(self, address: str, city: str) -> Optional[BCAssessmentData]:
         """Get BC Assessment data by property address"""
         try:
-            if "3469 adanac" in address.lower():
-                real_data = {
-                    "pid": "123-456-789",
-                    "address": address,
-                    "assessed_value": 1680000.0,  # Real BC Assessment value
-                    "assessed_land_value": 1400000.0,
-                    "assessed_improvement_value": 280000.0,
-                    "assessment_year": 2024,
-                    "property_class": "01 - Residential",
-                    "land_size": 5000.0,
-                    "year_built": 1995,
-                    "bedrooms": 4,  # Updated for 2-suite property
-                    "bathrooms": 3.0
-                }
-                return BCAssessmentData(**real_data)
-            
             mock_data = {
                 "pid": "123-456-789",
                 "address": address,

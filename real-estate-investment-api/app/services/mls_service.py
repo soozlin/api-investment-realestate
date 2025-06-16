@@ -21,31 +21,6 @@ class MLSService:
     async def search_property_by_address(self, address: str, city: str) -> Optional[MLSProperty]:
         """Search for property by address"""
         try:
-            if "3469 adanac" in address.lower():
-                real_data = {
-                    "mls_number": "R2123456",
-                    "address": address,
-                    "city": city,
-                    "postal_code": "V5K 2N6",
-                    "price": 1680000.0,
-                    "bedrooms": 4,
-                    "bathrooms": 3.0,
-                    "square_feet": 2400,
-                    "lot_size": 5000.0,
-                    "property_type": "single_family",
-                    "year_built": 1995,
-                    "amenities": ["parking", "garden", "deck", "separate_entrance", "2_suites"],
-                    "description": "Investment property with 2 separate suites, each renting for $3,400/month",
-                    "rental_history": {
-                        "current_monthly_rent": 6800.0,
-                        "suite_1_rent": 3400.0,
-                        "suite_2_rent": 3400.0,
-                        "rental_type": "2_suites"
-                    },
-                    "property_tax_annual": 4200.0
-                }
-                return self._parse_mls_data(real_data)
-            
             async with httpx.AsyncClient() as client:
                 response = await client.get(
                     f"{self.base_url}/properties/search",
@@ -71,31 +46,6 @@ class MLSService:
     async def get_property_by_mls_number(self, mls_number: str) -> Optional[MLSProperty]:
         """Get property details by MLS number"""
         try:
-            if mls_number == "R2990290":
-                real_data = {
-                    "mls_number": mls_number,
-                    "address": "3469 Adanac Street",
-                    "city": "Vancouver",
-                    "postal_code": "V5K 2N6",
-                    "price": 1680000.0,
-                    "bedrooms": 4,
-                    "bathrooms": 3.0,
-                    "square_feet": 2400,
-                    "lot_size": 5000.0,
-                    "property_type": "single_family",
-                    "year_built": 1995,
-                    "amenities": ["parking", "garden", "deck", "separate_entrance", "2_suites"],
-                    "description": "Investment property with 2 separate suites, each renting for $3,400/month",
-                    "rental_history": {
-                        "current_monthly_rent": 6800.0,
-                        "suite_1_rent": 3400.0,
-                        "suite_2_rent": 3400.0,
-                        "rental_type": "2_suites"
-                    },
-                    "property_tax_annual": 4200.0
-                }
-                return self._parse_mls_data(real_data)
-            
             async with httpx.AsyncClient() as client:
                 response = await client.get(
                     f"{self.base_url}/properties/{mls_number}",
